@@ -1,6 +1,6 @@
 # MARTINI
 
-[![Build Status](https://travis-ci.com/mapbox/martini.svg?branch=main)](https://travis-ci.com/mapbox/martini) [![Simply Awesome](https://img.shields.io/badge/simply-awesome-brightgreen.svg)](https://github.com/mourner/projects)
+[![Simply Awesome](https://img.shields.io/badge/simply-awesome-brightgreen.svg)](https://github.com/mourner/projects)
 
 MARTINI stands for **Mapbox's Awesome Right-Triangulated Irregular Networks, Improved**.
 
@@ -15,6 +15,8 @@ Based on the paper ["Right-Triangulated Irregular Networks" by Will Evans et. al
 ## Example
 
 ```js
+import Martini from '@mapbox/martini';
+
 // set up mesh generator for a certain 2^k+1 grid size
 const martini = new Martini(257);
 
