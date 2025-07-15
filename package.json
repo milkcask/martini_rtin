@@ -1,17 +1,16 @@
 {
   "name": "@mapbox/martini",
   "version": "0.2.0",
+  "type": "module",
   "description": "A JavaScript library for real-time terrain mesh generation",
-  "main": "martini.js",
-  "unpkg": "martini.min.js",
-  "module": "index.js",
+  "main": "index.js",
+  "exports": "./index.js",
   "types": "index.d.ts",
   "scripts": {
     "pretest": "eslint index.js bench.js test",
-    "test": "node -r esm test/test.js",
-    "bench": "node -r esm bench.js",
-    "build": "rollup -c",
-    "prepublishOnly": "npm run test && npm run build"
+    "test": "node test/test.js",
+    "bench": "node bench.js",
+    "prepublishOnly": "npm run test"
   },
   "keywords": [
     "terrain",
@@ -23,18 +22,13 @@
   "author": "Vladimir Agafonkin",
   "license": "ISC",
   "devDependencies": {
-    "@rollup/plugin-terser": "^0.1.0",
-    "eslint": "^8.26.0",
-    "eslint-config-mourner": "^3.0.0",
-    "esm": "^3.2.25",
-    "pngjs": "^6.0.0",
-    "rollup": "^3.2.3",
-    "tape": "^5.6.1"
+    "eslint": "^9.31.0",
+    "eslint-config-mourner": "^4.0.2",
+    "pngjs": "^7.0.0"
   },
   "files": [
     "index.js",
-    "martini.js",
-    "martini.min.js"
+    "index.d.ts"
   ],
   "eslintConfig": {
     "extends": "mourner",
