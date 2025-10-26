@@ -2,6 +2,7 @@
 //! Based on the Martini library for terrain mesh generation
 
 #![warn(missing_docs)]
+#![doc = include_str!("../README.md")]
 
 use glam::USizeVec2;
 
