@@ -1,0 +1,15 @@
+[package]
+name = "martini_rtin"
+version = "0.2.0"
+authors = ["milkcask"]
+edition = "2021"
+description = "A Rust implementation of the RTIN algorithm"
+keywords = ["gamedev", "rust", "terrain", "mesh", "rtin", "level-of-detail", "lod", "algorithm"]
+categories = ["game-development"]
+license = "ISC"
+repository = "https://github.com/milkcask/martini_rtin"
+homepage = "https://github.com/milkcask/martini_rtin"
+readme = "README.md"
+
+[dependencies]
+glam = "0.30.0"

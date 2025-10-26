@@ -3,3 +3,5 @@ yarn.lock
 *.log
 martini.js
 martini.min.js
+rust/target
+rust/Cargo.lock
