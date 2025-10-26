@@ -1,38 +1,76 @@
-# MARTINI
+# martini_rtin
 
-[![Simply Awesome](https://img.shields.io/badge/simply-awesome-brightgreen.svg)](https://github.com/mourner/projects)
+A Rust port of the RTIN (Right-Triangulated Irregular Network) algorithm previously implemented as Mapbox's Awesome Right-Triangulated Irregular Networks, Improved (MARTINI).
 
-MARTINI stands for **Mapbox's Awesome Right-Triangulated Irregular Networks, Improved**.
+It's an experimental library for **real-time terrain mesh generation** from height data. Given a (2<sup>k</sup>+1) × (2<sup>k</sup>+1) terrain grid, it generates a hierarchy of triangular meshes of varying level of detail in milliseconds. _A work in progress._
 
-It's an experimental JavaScript library for **real-time terrain mesh generation** from height data. Given a (2<sup>k</sup>+1) × (2<sup>k</sup>+1) terrain grid, it generates a hierarchy of triangular meshes of varying level of detail in milliseconds. _A work in progress._
+[![Crates.io](https://img.shields.io/crates/v/martini_rtin.svg)](https://crates.io/crates/martini_rtin)
+[![Documentation](https://docs.rs/martini_rtin/badge.svg)](https://docs.rs/martini_rtin)
 
-See the algorithm in action and read more about how it works in [this interactive Observable notebook](https://observablehq.com/@mourner/martin-real-time-rtin-terrain-mesh).
-
-Based on the paper ["Right-Triangulated Irregular Networks" by Will Evans et. al. (1997)](https://www.cs.ubc.ca/~will/papers/rtin.pdf).
+Based on the paper ["Right-Triangulated Irregular Networks" by Will Evans et. al. (1997)](https://www.cs.ubc.ca/~will/papers/rtin.pdf) and inspired by [Mapbox's Martini library](https://github.com/mapbox/martini).
 
 ![MARTINI terrain demo](martini.gif)
 
+## Features
+
+- Fast terrain mesh generation from height data
+- Configurable level of detail based on error tolerance
+- Memory-efficient hierarchical mesh representation
+- No unsafe code
+
+## Usage
+
+Add this to your `Cargo.toml`:
+
+```toml
+[dependencies]
+martini_rtin = "0.2.0"
+```
+
 ## Example
 
-```js
-import Martini from '@mapbox/martini';
+```rust
+use martini_rtin::Martini;
 
-// set up mesh generator for a certain 2^k+1 grid size
-const martini = new Martini(257);
+// Create a mesh generator for a 257x257 grid (2^8 + 1)
+let martini = Martini::with_capacity(257);
 
-// generate RTIN hierarchy from terrain data (an array of size^2 length)
-const tile = martini.createTile(terrain);
+// Generate terrain data (flat array of height values)
+let terrain: Vec<f32> = (0..257*257).map(|i| {
+    let x = i % 257;
+    let y = i / 257;
+    // Simple sine wave terrain
+    ((x as f32 * 0.1).sin() + (y as f32 * 0.1).sin()) * 10.0
+}).collect();
 
-// get a mesh (vertices and triangles indices) for a 10m error
-const mesh = tile.getMesh(10);
+// Create a tile from the terrain data
+let tile = martini.create_tile(terrain);
+
+// Generate a mesh with maximum error of 1.0
+let (vertices, triangles) = tile.get_mesh(1.0);
+
+println!("Generated {} vertices and {} triangles", 
+         vertices.len(), triangles.len() / 3);
 ```
 
-## Install
+## Algorithm
 
-```bash
-npm install @mapbox/martini
-```
+The RTIN algorithm works by:
 
-### Ports to other languages
+1. Building a hierarchy of right triangles from the terrain grid
+2. Computing approximation errors for each triangle level
+3. Generating meshes by recursively subdividing triangles that exceed the error threshold
 
-- [pymartini](https://github.com/kylebarron/pymartini) (Python)
+This approach allows for efficient level-of-detail mesh generation suitable for real-time applications.
+
+## Grid Size Requirements
+
+The grid size must be of the form 2^n + 1 (e.g., 3, 5, 9, 17, 33, 65, 129, 257, 513, 1025).
+
+## Performance
+
+The algorithm is designed for real-time use and can generate meshes from large terrain grids in milliseconds.
+
+## License
+
+ISC
