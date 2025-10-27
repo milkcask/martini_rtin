@@ -97,14 +97,19 @@ impl Martini {
     }
 
     /// Creates a tile from terrain data
-    pub fn create_tile(&self, terrain: Vec<f32>) -> Tile<'_> {
+    pub fn create_tile(&self, terrain: Vec<Vec<f32>>) -> Tile<'_> {
         Tile::new(terrain, self)
+    }
+
+    /// Returns the grid size of the terrain
+    pub fn grid_size(&self) -> usize {
+        self.grid_size
     }
 }
 
 /// Tile - represents a terrain tile that can generate meshes at different error levels
 pub struct Tile<'a> {
-    terrain: Vec<f32>,
+    terrain: Vec<Vec<f32>>,
     martini: &'a Martini,
     errors: Vec<f32>,
 }
@@ -118,11 +123,11 @@ impl<'a> Tile<'a> {
     ///
     /// # Panics
     /// Panics if terrain data length doesn't match expected size
-    pub fn new(terrain: Vec<f32>, martini: &'a Martini) -> Self {
-        assert_terrain_len(&terrain, martini.grid_size);
+    pub fn new(terrain: Vec<Vec<f32>>, martini: &'a Martini) -> Self {
+        assert_terrain_size(&terrain, martini.grid_size);
 
         let mut tile = Self {
-            errors: vec![0.0; terrain.len()],
+            errors: vec![0.0; martini.grid_size * martini.grid_size],
             terrain,
             martini,
         };
@@ -148,12 +153,9 @@ impl<'a> Tile<'a> {
             let c = USizeVec2::new(m.x + m.y - a.y, m.y + a.x - m.x);
 
             // Calculate error in the middle of the long edge of the triangle
-            let interpolated_height = f32::midpoint(
-                self.terrain[a.y * size + a.x],
-                self.terrain[b.y * size + b.x],
-            );
+            let interpolated_height = f32::midpoint(self.terrain[a.x][a.y], self.terrain[b.x][b.y]);
             let middle_index = m.y * size + m.x;
-            let middle_error = (interpolated_height - self.terrain[middle_index]).abs();
+            let middle_error = (interpolated_height - self.terrain[m.x][m.y]).abs();
 
             self.errors[middle_index] = self.errors[middle_index].max(middle_error);
 
@@ -401,24 +403,23 @@ pub fn assert_valid_size(grid_size: usize) {
 ///
 /// # Panics
 /// Panics if the terrain length doesn't match grid_size²
-///
-/// # Examples
-/// ```
-/// use martini_rtin::assert_terrain_len;
-/// 
-/// let terrain = vec![0.0; 17 * 17];
-/// assert_terrain_len(&terrain, 17); // Valid: 289 elements for 17×17 grid
-/// ```
-pub fn assert_terrain_len(terrain: &[f32], grid_size: usize) {
+pub fn assert_terrain_size(terrain: &[Vec<f32>], grid_size: usize) {
     assert_eq!(
         terrain.len(),
-        grid_size * grid_size,
-        "Expected terrain length to be {} ({} x {}) but got {}",
-        grid_size * grid_size,
         grid_size,
+        "Expected terrain length to be {} but got {}",
         grid_size,
         terrain.len()
     );
+    for row in terrain {
+        assert_eq!(
+            row.len(),
+            grid_size,
+            "Expected terrain row length to be {} but got {}",
+            grid_size,
+            row.len()
+        );
+    }
 }
 
 #[cfg(test)]
@@ -440,14 +441,14 @@ mod tests {
     #[test]
     fn test_tile_creation() {
         let martini = Martini::with_capacity(17); // Small grid for testing
-        let terrain = vec![0.0; 17 * 17];
+        let terrain = vec![vec![0.0; 17]; 17];
         let _tile = martini.create_tile(terrain);
     }
 
     #[test]
     fn test_mesh_generation() {
         let martini = Martini::with_capacity(17);
-        let terrain = vec![0.0; 17 * 17];
+        let terrain = vec![vec![0.0; 17]; 17];
         let tile = martini.create_tile(terrain);
         let (vertices, triangles) = tile.get_mesh(0.0);
 
